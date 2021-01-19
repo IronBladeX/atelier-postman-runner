@@ -1,0 +1,299 @@
+{
+	"info": {
+		"_postman_id": "39e7d136-98be-43ad-918c-fdb47ca93ff3",
+		"name": "Postman runner collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Reset",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{api_contract}}/reset",
+					"host": [
+						"{{api_contract}}"
+					],
+					"path": [
+						"reset"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is good\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"    pm.response.to.be.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"pm.test(\"Contract ref is \" + pm.iterationData.get(\"ref\"), function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.ref).to.eql(pm.iterationData.get(\"ref\"));",
+							"});",
+							"",
+							"pm.test(\"Contract agency is \" + pm.iterationData.get(\"agency\"), function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.agency).to.eql(pm.iterationData.get(\"agency\"));",
+							"});",
+							"",
+							"pm.test(\"Contract vendor is \" + pm.iterationData.get(\"vendor\"), function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.vendor).to.eql(pm.iterationData.get(\"vendor\"));",
+							"});",
+							"",
+							"pm.test(\"Contract has id\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).not.eq(undefined);",
+							"});",
+							"",
+							"pm.test(\"Persons have codes\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var persons = pm.iterationData.get(\"persons\");",
+							"",
+							"    if (persons && persons.length > 0) {",
+							"        pm.expect(jsonData.persons[0].code).not.eq(\"code\");",
+							"    }    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var persons = JSON.stringify(pm.iterationData.get('persons'));",
+							"pm.variables.set('json_persons', persons);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ref\": \"{{ref}}\",\n    \"agency\": \"{{agency}}\",\n    \"vendor\": \"{{vendor}}\",\n    \"status\": \"draft\",\n    \"persons\": {{json_persons}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_contract}}",
+					"host": [
+						"{{api_contract}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FindOne",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check result ref is \" + pm.iterationData.get(\"ref\"), function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.ref).to.eql(pm.iterationData.get(\"ref\"));",
+							"});",
+							"",
+							"pm.test(\"Check result status is draft\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.status).to.eql(\"draft\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_contract}}/{{ref}}",
+					"host": [
+						"{{api_contract}}"
+					],
+					"path": [
+						"{{ref}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check result ref is \" + pm.iterationData.get(\"ref\"), function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.ref).to.eql(pm.iterationData.get(\"ref\"));",
+							"});",
+							"",
+							"pm.test(\"Check result status is pending\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.status).to.eql(\"pending\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ref\": \"{{ref}}\",\n    \"agency\": \"{{agency}}\",\n    \"vendor\": \"{{vendor}}\",\n    \"status\": \"pending\",\n    \"persons\": {{json_persons}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_contract}}/{{ref}}",
+					"host": [
+						"{{api_contract}}"
+					],
+					"path": [
+						"{{ref}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{api_contract}}/{{ref}}",
+					"host": [
+						"{{api_contract}}"
+					],
+					"path": [
+						"{{ref}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FindOne 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"pm.test(\"Status code is not_found\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.code).to.eql(\"not_found\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_contract}}/{{ref}}",
+					"host": [
+						"{{api_contract}}"
+					],
+					"path": [
+						"{{ref}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_contract",
+			"value": "localhost:8080/contracts"
+		}
+	]
+}

@@ -2,7 +2,6 @@ package com.krgcorporate.postmanrunner.business.impl;
 
 import com.krgcorporate.postmanrunner.business.ContractManager;
 import com.krgcorporate.postmanrunner.domain.Contract;
-import com.krgcorporate.postmanrunner.domain.Person;
 import com.krgcorporate.postmanrunner.repository.ContractRepository;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

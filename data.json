@@ -1,0 +1,60 @@
+[
+	{
+		"ref": "CONTRACT10",
+		"agency": "agency10",
+		"vendor": "vendor10",
+		"persons": [
+			{
+	            "code": "code",
+	            "gender": "M",
+	            "firstname": "John",
+	            "lastname": "Doe",
+	            "email": "john.doe@gmail.com",
+	            "role": "subscriber"
+        	}
+		]
+	},
+	{
+		"ref": "CONTRACT11",
+		"agency": "agency11",
+		"vendor": "vendor11",
+		"persons": []
+	},
+	{
+		"ref": "CONTRACT12",
+		"agency": "agency12",
+		"vendor": "vendor12",
+		"persons": [
+			{
+	            "code": "code",
+	            "gender": "M",
+	            "firstname": "John",
+	            "lastname": "Doe",
+	            "email": "john.doe@gmail.com",
+	            "role": "subscriber"
+        	},
+        	{
+	            "code": "code",
+	            "gender": "M",
+	            "firstname": "Jenny",
+	            "lastname": "Doe",
+	            "email": "jenny.doe@gmail.com",
+	            "role": "beneficiary"
+        	}
+		]
+	},
+	{
+		"ref": "CONTRACT13",
+		"agency": "agency13",
+		"vendor": "vendor13",
+		"persons": [
+			{
+	            "code": "code",
+	            "gender": "SOCIETY",
+	            "lastname": "Société",
+	            "email": "contact@societe.fr",
+	            "role": "subscriber"
+        	}
+		]
+	}
+]

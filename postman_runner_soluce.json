@@ -1,0 +1,502 @@
+{
+	"info": {
+		"_postman_id": "5d3ae055-92d4-430b-93c8-71dcf7e1d8f3",
+		"name": "Postman runner Soluce",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Reset",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{api_contract}}/reset",
+					"host": [
+						"{{api_contract}}"
+					],
+					"path": [
+						"reset"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FindAll",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Page is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.pageable.pageNumber).to.eql(0);",
+							"    pm.expect(jsonData.pageable.pageSize).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.content).to.be.a('array');",
+							"});",
+							"",
+							"pm.test(\"Content-Type is good\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"    pm.response.to.be.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_contract}}?size=100",
+					"host": [
+						"{{api_contract}}"
+					],
+					"query": [
+						{
+							"key": "size",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FindOne 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"pm.test(\"Status code is not_found\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.code).to.eql(\"not_found\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_contract}}/{{contract_ref}}",
+					"host": [
+						"{{api_contract}}"
+					],
+					"path": [
+						"{{contract_ref}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create validation failed",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Status code is validation_failed\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.code).to.eql(\"validation_failed\");",
+							"});",
+							"",
+							"pm.test(\"Validation error is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data.fieldErrors).to.eql(",
+							"        {",
+							"            \"persons[2].firstname\": [",
+							"                {",
+							"                    \"code\": \"must-be-blank\",",
+							"                    \"message\": \"Firstname must be blank on society.\"",
+							"                }",
+							"            ]",
+							"        }",
+							"    );",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ref\": \"{{contract_ref}}\",\n    \"agency\": \"agency1\",\n    \"vendor\": \"vendor1\",\n    \"status\": \"draft\",\n    \"persons\": [\n        {\n            \"code\": \"code\",\n            \"gender\": \"M\",\n            \"firstname\": \"John\",\n            \"lastname\": \"Doe\",\n            \"email\": \"john.doe@gmail.com\",\n            \"role\": \"subscriber\"\n        },\n        {\n            \"code\": \"code\",\n            \"gender\": \"F\",\n            \"firstname\": \"Jenny\",\n            \"lastname\": \"Doe\",\n            \"role\": \"beneficiary\"\n        },\n        {\n            \"code\": \"code\",\n            \"gender\": \"SOCIETY\",\n            \"firstname\": \"Jenny\",\n            \"lastname\": \"Society\",\n            \"email\": \"contact@society.com\",\n            \"role\": \"contact\"\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_contract}}",
+					"host": [
+						"{{api_contract}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Contract ref is \" + pm.variables.get(\"contract_ref\"), function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.ref).to.eql(pm.variables.get(\"contract_ref\"));",
+							"});",
+							"",
+							"pm.test(\"Contract has id\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).not.eq(undefined);",
+							"});",
+							"",
+							"pm.test(\"Persons have codes\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.persons[0].code).not.eq(\"code\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ref\": \"{{contract_ref}}\",\n    \"agency\": \"agency1\",\n    \"vendor\": \"vendor1\",\n    \"status\": \"draft\",\n    \"persons\": [\n        {\n            \"code\": \"code\",\n            \"gender\": \"M\",\n            \"firstname\": \"John\",\n            \"lastname\": \"Doe\",\n            \"email\": \"john.doe@gmail.com\",\n            \"role\": \"subscriber\"\n        },\n        {\n            \"code\": \"code\",\n            \"gender\": \"F\",\n            \"firstname\": \"Jenny\",\n            \"lastname\": \"Doe\",\n            \"role\": \"beneficiary\"\n        },\n        {\n            \"code\": \"code\",\n            \"gender\": \"SOCIETY\",\n            \"lastname\": \"Society\",\n            \"email\": \"contact@society.com\",\n            \"role\": \"contact\"\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_contract}}",
+					"host": [
+						"{{api_contract}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create 409",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 409\", function () {",
+							"    pm.response.to.have.status(409);",
+							"});",
+							"",
+							"pm.test(\"Status code is already_exists\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.code).to.eql(\"already_exists\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Check message\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.eql(\"Contract with ref `\" + pm.variables.get(\"contract_ref\") + \"` already exists.\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ref\": \"{{contract_ref}}\",\n    \"agency\": \"agency1\",\n    \"vendor\": \"vendor1\",\n    \"status\": \"draft\",\n    \"persons\": [\n        {\n            \"code\": \"code\",\n            \"gender\": \"M\",\n            \"firstname\": \"John\",\n            \"lastname\": \"Doe\",\n            \"email\": \"john.doe@gmail.com\",\n            \"role\": \"subscriber\"\n        },\n        {\n            \"code\": \"code\",\n            \"gender\": \"F\",\n            \"firstname\": \"Jenny\",\n            \"lastname\": \"Doe\",\n            \"role\": \"beneficiary\"\n        },\n        {\n            \"code\": \"code\",\n            \"gender\": \"SOCIETY\",\n            \"lastname\": \"Society\",\n            \"email\": \"contact@society.com\",\n            \"role\": \"contact\"\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_contract}}",
+					"host": [
+						"{{api_contract}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FindOne",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check result ref is \" + pm.variables.get(\"contract_ref\"), function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.ref).to.eql(pm.variables.get(\"contract_ref\"));",
+							"});",
+							"",
+							"pm.test(\"Check result status is draft\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.status).to.eql(\"draft\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_contract}}/{{contract_ref}}",
+					"host": [
+						"{{api_contract}}"
+					],
+					"path": [
+						"{{contract_ref}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FindAll with contract",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Page is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.pageable.pageNumber).to.eql(0);",
+							"    pm.expect(jsonData.pageable.pageSize).to.eql(200);",
+							"});",
+							"",
+							"pm.test(\"Check result return contract \" + pm.variables.get(\"contract_ref\"), function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.content[0].ref).to.eql(pm.variables.get(\"contract_ref\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_contract}}",
+					"host": [
+						"{{api_contract}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check result ref is \" + pm.variables.get(\"contract_ref\"), function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.ref).to.eql(pm.variables.get(\"contract_ref\"));",
+							"});",
+							"",
+							"pm.test(\"Check result status is pending\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.status).to.eql(\"pending\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ref\": \"{{contract_ref}}\",\n    \"agency\": \"agency1\",\n    \"vendor\": \"vendor1\",\n    \"status\": \"pending\",\n    \"persons\": [\n        {\n            \"code\": \"code\",\n            \"gender\": \"M\",\n            \"firstname\": \"John\",\n            \"lastname\": \"Doe\",\n            \"email\": \"john.doe@gmail.com\",\n            \"role\": \"subscriber\"\n        },\n        {\n            \"code\": \"code\",\n            \"gender\": \"F\",\n            \"firstname\": \"Jenny\",\n            \"lastname\": \"Doe\",\n            \"role\": \"beneficiary\"\n        },\n        {\n            \"code\": \"code\",\n            \"gender\": \"SOCIETY\",\n            \"lastname\": \"Society\",\n            \"email\": \"contact@society.com\",\n            \"role\": \"contact\"\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_contract}}/{{contract_ref}}",
+					"host": [
+						"{{api_contract}}"
+					],
+					"path": [
+						"{{contract_ref}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{api_contract}}/{{contract_ref}}",
+					"host": [
+						"{{api_contract}}"
+					],
+					"path": [
+						"{{contract_ref}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FindOne 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"pm.test(\"Status code is not_found\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.code).to.eql(\"not_found\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_contract}}/{{contract_ref}}",
+					"host": [
+						"{{api_contract}}"
+					],
+					"path": [
+						"{{contract_ref}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_contract",
+			"value": "localhost:8080/contracts"
+		},
+		{
+			"key": "contract_ref",
+			"value": "CONTRACT1"
+		}
+	]
+}

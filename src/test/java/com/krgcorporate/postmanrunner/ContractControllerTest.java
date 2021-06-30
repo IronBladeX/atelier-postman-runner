@@ -2,11 +2,14 @@ package com.krgcorporate.postmanrunner;
 
 import com.krgcorporate.postmanrunner.domain.Contract;
 import com.krgcorporate.postmanrunner.repository.ContractRepository;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -45,6 +48,15 @@ public class ContractControllerTest {
         // json field pageable.pageNumber is number
         // json field pageable.pageSize is number
 
+        testClient.get()
+                .uri("/contracts/")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals("Content-Type", "application/json")
+                .expectBody()
+                .jsonPath("content").isArray()
+                .jsonPath("pageable.pageNumber").isNumber()
+                .jsonPath("pageable.pageSize").isNumber();
     }
 
     @Test
@@ -54,6 +66,12 @@ public class ContractControllerTest {
         // Header Content-Type is application/json
         // and body contract has ref CONTRACT_REF
 
+        testClient.get()
+                .uri("/contracts/{ref}", "CONTRACT_REF")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals("Content-Type", "application/json")
+                .expectBody().jsonPath("ref").isEqualTo("CONTRACT_REF");
     }
 
     @Test
@@ -66,6 +84,16 @@ public class ContractControllerTest {
         // json collection persons hasSize 1 (Use Matchers.hasSize)
         // all elements in collection persons has code
 
+        testClient.post()
+                .uri("/contracts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"ref\": \"CONTRACT_REF2\", \"agency\": \"AGENCY_CODE\", \"vendor\": \"VENDOR_CODE\", \"status\": \"DRAFT\" , \"persons\": [{ \"code\": \"code\", \"gender\": \"M\", \"firstname\": \"John\", \"lastname\": \"Doe\", \"email\": \"john.doe@gmail.com\", \"role\": \"subscriber\" }]}")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals("Content-Type", "application/json")
+                .expectBody().jsonPath("ref").isEqualTo("CONTRACT_REF2")
+                .jsonPath("persons").value(v -> Matchers.hasSize(1))
+                .jsonPath("persons[*].code").exists();
     }
 
     @Test
@@ -78,6 +106,16 @@ public class ContractControllerTest {
         // ref is CONTRACT_REF
         // status is ACTIVE
 
+        testClient.put()
+                .uri("/contracts/{ref}", "CONTRACT_REF")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"ref\": \"CONTRACT_REF\", \"agency\": \"AGENCY_CODE\", \"vendor\": \"VENDOR_CODE\", \"status\": \"ACTIVE\"}")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals("Content-Type", "application/json")
+                .expectBody()
+                .jsonPath("ref").isEqualTo("CONTRACT_REF")
+                .jsonPath("status").isEqualTo("ACTIVE");
 
 
         // Test get /contracts/{ref} with ref CONTRACT_REF
@@ -86,6 +124,14 @@ public class ContractControllerTest {
         // and body contract has ref CONTRACT_REF
         // ref is CONTRACT_REF
         // status is updated to ACTIVE
+        testClient.get()
+                .uri("/contracts/{ref}", "CONTRACT_REF")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals("Content-Type", "application/json")
+                .expectBody()
+                .jsonPath("ref").isEqualTo("CONTRACT_REF")
+                .jsonPath("status").isEqualTo("ACTIVE");
     }
 
     @Test
@@ -94,6 +140,12 @@ public class ContractControllerTest {
         // with body {"ref": "CONTRACT_REF", "agency": "AGENCY_CODE", "vendor": "VENDOR_CODE", "status": "DRAFT" , "persons": [{ "code": "code", "gender": "M", "firstname": "John", "lastname": "Doe", "email": "john.doe@gmail.com", "role": "subscriber" }]}
         // return status is HttpStatus.CONFLICT
 
+        testClient.post()
+                .uri("/contracts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"ref\": \"CONTRACT_REF\", \"agency\": \"AGENCY_CODE\", \"vendor\": \"VENDOR_CODE\", \"status\": \"DRAFT\" , \"persons\": [{ \"code\": \"code\", \"gender\": \"M\", \"firstname\": \"John\", \"lastname\": \"Doe\", \"email\": \"john.doe@gmail.com\", \"role\": \"subscriber\" }]}")
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
     }
 
     @Test
@@ -106,6 +158,19 @@ public class ContractControllerTest {
         // data.fieldErrors['persons[0].firstname'][0].code is equal to 'must-be-blank'
         // data.fieldErrors['persons[0].firstname'][0].message is equal to 'Firstname must be blank on society.'
 
+        testClient.post()
+                .uri("/contracts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"ref\": \"CONTRACT_REF\", \"agency\": \"AGENCY_CODE\", \"vendor\": \"VENDOR_CODE\", \"status\": \"DRAFT\" , \"persons\": [{ \"code\": \"code\", \"gender\": \"SOCIETY\", \"firstname\": \"John\", \"lastname\": \"Doe\", \"email\": \"john.doe@gmail.com\", \"role\": \"subscriber\" }]}")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectHeader().valueEquals("Content-Type", "application/json")
+                .expectBody()
+                .jsonPath("code").isEqualTo("validation_failed")
+                .jsonPath("data.fieldErrors").exists()
+                .jsonPath("data.fieldErrors['persons[0].firstname']").isArray()
+                .jsonPath("data.fieldErrors['persons[0].firstname'][0].code").isEqualTo("must-be-blank")
+                .jsonPath("data.fieldErrors['persons[0].firstname'][0].message").isEqualTo("Firstname must be blank on society.");
     }
 
     @Test

@@ -58,7 +58,7 @@ public class ContractController {
     @PostMapping()
     public Contract post(@RequestBody @Validated final Contract contract) {
         if (Objects.nonNull(contract.getId())) {
-            throw new AlreadyExistsException("Contract `" + contract.getId() + "` already exists in database.");
+            throw new AlreadyExistsException("Contract cant have id for creation method.");
         }
 
         contractManager.findByRef(contract.getRef()).ifPresent(result -> {
@@ -90,10 +90,5 @@ public class ContractController {
                 .orElseThrow(() -> new NotFoundException(String.format("No Contract with ref `%s`", ref)));
 
         contractManager.delete(contractFromDb);
-    }
-
-    @PostMapping("reset")
-    public void reset() {
-        contractManager.reset();
     }
 }

@@ -13,17 +13,18 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.lang.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Document
 @Data
 @Builder
-@AllArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = {@JsonCreator, @PersistenceConstructor})
 public class Contract {
 
     private @Nullable String id;
 
-    @Indexed
+    @Indexed(unique = true)
     private @NonNull String ref;
 
     @Indexed
@@ -35,4 +36,22 @@ public class Contract {
     private @NonNull String status;
 
     private @NonNull List<Person> persons;
+
+    @JsonCreator
+    @PersistenceConstructor
+    public Contract(
+            @Nullable String id,
+            @NonNull String ref,
+            @NonNull String agency,
+            @NonNull String vendor,
+            @NonNull String status,
+            @Nullable List<Person> persons) {
+        this.id = id;
+        this.ref = ref;
+        this.agency = agency;
+        this.vendor = vendor;
+        this.status = status;
+        this.persons = Optional.ofNullable(persons)
+                .orElse(new ArrayList<>());
+    }
 }

@@ -45,6 +45,7 @@ public class ContractControllerTest {
         // Header Content-Type is application/json
         // and body respect:
         // json field content is array
+        // content contains contract.ref CONTRACT_REF
         // json field pageable.pageNumber is number
         // json field pageable.pageSize is number
 
@@ -55,6 +56,7 @@ public class ContractControllerTest {
                 .expectHeader().valueEquals("Content-Type", "application/json")
                 .expectBody()
                 .jsonPath("content").isArray()
+                .jsonPath("content[*].ref").value(v -> Matchers.containsInAnyOrder("CONTRACT_REF"))
                 .jsonPath("pageable.pageNumber").isNumber()
                 .jsonPath("pageable.pageSize").isNumber();
     }

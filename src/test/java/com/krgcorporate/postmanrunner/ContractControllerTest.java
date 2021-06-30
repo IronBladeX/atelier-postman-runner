@@ -42,6 +42,7 @@ public class ContractControllerTest {
         // Header Content-Type is application/json
         // and body respect:
         // json field content is array
+        // content contains contract.ref with CONTRACT_REF
         // json field pageable.pageNumber is number
         // json field pageable.pageSize is number
 
